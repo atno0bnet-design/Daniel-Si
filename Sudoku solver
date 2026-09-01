@@ -1,0 +1,183 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+typedef int sudokuBoard[9][9];
+
+typedef struct {
+	double x;
+	double y;
+	double z;
+}point;
+
+bool validMove(sudokuBoard board, point pos,int num) {
+	//board[(int)pos.y][(int)pos.x] = num;
+	
+	/*
+	for (int i = 0; i < 9; i++) {
+		for (int n = 0; n < 9; n++) {
+			printf("%d ", board[i][n]);
+		}
+		printf("\n");
+	}
+	*/
+	//check rows
+
+
+
+	bool flags[9] = {false};
+	for (int i = 0; i < 9; i++) {
+		int number = board[(int)pos.y][i];
+		if (number == num) {
+			return false;
+		}
+	}
+	memset(flags,  false,sizeof(flags));
+
+	for (int i = 0; i < 9; i++) {
+		int number = board[i][(int)pos.x];
+		if (number == num) {
+			return false;
+		}
+		
+	}
+
+	memset(flags, false, sizeof(flags));
+
+	for (int i = (pos.y - (int)pos.y % 3); i < ( pos.y-((int)pos.y % 3)) + 3; i++) {
+		for (int x = (pos.x - (int)pos.x % 3); x < (pos.x-((int)pos.x % 3)) + 3; x++) {
+			int number = board[i][x];
+			if (number == num) {
+				return false;
+			}
+		}
+	}
+
+	//printf("Is valid move\n\n");
+
+	return true;
+}
+
+
+
+bool sudoku(sudokuBoard board) {
+	/*
+	printf("\n\n\n\n");
+	for (int i = 0; i < 9; i++) {
+		for (int n = 0; n < 9; n++) {
+			printf("%d ", board[i][n]);
+		}
+		printf("\n");
+	}
+	printf("\n\n\n");
+	*/
+	point pos;
+	bool flag = false;
+	for (int i = 0; i < 9; i++) {
+		for (int n = 0; n < 9; n++) {
+			if (board[i][n] == 0) {
+				pos.x = n;
+				pos.y = i;
+				flag = true;
+				break;
+			}	
+		}
+		if (flag == true) {
+			break;
+		}
+	}
+	if (flag == false) {
+		return true;
+	}
+
+	//printf("%d    %d\n",(int)pos.x,(int)pos.y);
+
+	for (int i = 1; i <= 9; i++) {
+		if (validMove(board, pos, i)) {
+			board[(int)pos.y][(int)pos.x] = i;
+			if (sudoku(board)) {
+				return true;
+			}
+			board[(int)pos.y][(int)pos.x] = 0;
+		}
+	}
+
+	return false;
+}
+
+
+
+
+
+int main()
+{
+    sudokuBoard board[] = {
+				{
+					{2,6,0,0,0,8,0,0,0},
+					{0,8,0,0,0,9,6,0,0},
+					{0,0,0,0,5,0,0,0,0},
+					{0,9,4,3,0,0,5,0,0},
+					{0,0,2,0,7,0,0,0,0},
+					{0,5,0,0,0,0,8,0,4},
+					{0,3,5,8,0,0,0,0,0},
+					{0,0,0,0,0,0,3,0,1},
+					{7,0,0,0,6,0,0,0,0}
+				},
+				{
+					{2,6,0,0,0,8,0,0,0},
+					{0,8,0,0,0,9,6,0,0},
+					{0,0,0,0,5,0,0,0,0},
+					{0,9,4,3,0,0,5,0,0},
+					{0,0,2,0,7,0,0,0,0},
+					{0,5,0,0,0,0,8,0,4},
+					{0,3,5,8,0,0,0,0,0},
+					{0,0,0,0,0,0,3,0,1},
+					{7,0,0,0,6,0,0,0,0}
+				},
+				{
+					{0,8,7,0,0,0,4,0,1},
+					{0,0,0,0,0,0,0,0,0},
+					{0,1,6,0,0,4,0,0,2},
+					{0,0,0,0,0,0,1,0,0},
+					{0,5,4,2,1,0,3,6,9},
+					{0,6,0,7,0,0,0,0,0},
+					{0,4,8,5,0,0,6,0,0},
+					{0,0,5,0,4,9,0,0,0},
+					{0,0,0,0,2,0,0,9,4}
+				},
+				{
+				    {8,0,0,0,0,0,0,0,0},
+                    {0,0,3,6,0,0,0,0,0},
+                    {0,7,0,0,9,0,2,0,0},
+                    {0,5,0,0,0,7,0,0,0},
+                    {0,0,0,0,4,5,7,0,0},
+                    {0,0,0,1,0,0,0,3,0},
+                    {0,0,1,0,0,0,0,6,8},
+                    {0,0,8,5,0,0,0,1,0},
+                    {0,9,0,0,0,0,4,0,0}    
+				
+				}
+				
+            };
+        for (sudokuBoard& b : board) {
+
+				sudoku(b);
+
+
+
+
+
+				printf("\n\n\n\n");
+				for (int i = 0; i < 9; i++) {
+					for (int n = 0; n < 9; n++) {
+						printf("%d ", b[i][n]);
+					}
+					printf("\n");
+
+				}
+}
+
+
+
+    return 0;
+}
