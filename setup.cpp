@@ -48,7 +48,7 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
     cvtColor(green, green, COLOR_BGR2HSV);
 
     // home threshold for green
-    inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
+    inRange(green, Scalar(86, 24, 41), Scalar(132, 211, 190), green);
     // other threshold for green
     // inRange(green, Scalar(73, 123, 85), Scalar(99, 215,236), green);
 
@@ -56,7 +56,7 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
     Mat kernel = getStructuringElement(MORPH_RECT, Size(25, 25));
    // morphologyEx(framewhite, framewhite, MORPH_CLOSE, kernel);
 
-    threshold(frame, frame, 80, 255, THRESH_BINARY_INV);
+    threshold(frame, frame, 60, 255, THRESH_BINARY_INV);
     morphologyEx(frame, frame, MORPH_CLOSE, kernel);
 }
 

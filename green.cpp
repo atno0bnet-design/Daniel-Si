@@ -212,6 +212,7 @@ State findGreen(vector<vector<Point>> green_cont, Mat& display,Mat frame){
 
 
 Point chooseLeft(vector<Point> exits,Mat framewhite,Mat& display,Point& previousentrance, Point& previousexit){
+	cout<<"choosing left exit"<<endl;
 	Point entrance, exit;
 	if(exits.size()==2){
 		double entrancedist1 = norm(exits.at(0) - previousentrance);

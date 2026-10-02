@@ -330,7 +330,7 @@ void setup() {
   ring.begin();
     
 
-  ring.setBrightness(20);
+  ring.setBrightness(5);
 
   for (int i = 0; i < 24; i++) {
     ring.setPixelColor(i, ring.Color(255, 255, 255));
