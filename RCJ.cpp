@@ -1,20 +1,8 @@
 #include "header.h"
-Point previousentrance(200,400);
-Point previousexit(200,0);
+Point previousentrance(200, 400);
+Point previousexit(200, 0);
 const int default_speed = 45;
-double ka = 1.6;
-enum State {
-  line_following,
-  double_green,
-  obstacle,
-  gap,
-  end,
-  find_alive_victim,
-  find_green_zone,
-  find_dead_victim,
-  find_dead_zone,
-  find_evac_exit
-};
+double ka = 3;
 
 State state = line_following;
 
@@ -75,7 +63,7 @@ int main() {
   waitForcytron();
 
   while (true) {
-    cout << "running" << endl;
+
     if (!cam.getVideoFrame(frame, 1000)) {
       cout << "CAM ERROR" << endl;
       break;
@@ -86,25 +74,23 @@ int main() {
     }
 
     resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
-    
+
     /*
     Mat mask = cv::Mat::zeros(frame.size(), CV_8UC1);
     vector<Point> triangle_points;
     triangle_points.push_back(cv::Point(0,0));
     triangle_points.push_back(cv::Point(0,80));
     triangle_points.push_back(cv::Point(80, 0));
-	vector<Point> other_triangle_points;
-	other_triangle_points.push_back(cv::Point(frame.cols,0));
+        vector<Point> other_triangle_points;
+        other_triangle_points.push_back(cv::Point(frame.cols,0));
     other_triangle_points.push_back(cv::Point(frame.cols,80));
     other_triangle_points.push_back(cv::Point(frame.cols-80, 0));
-	
+
     vector<vector<Point>> tri = { triangle_points,other_triangle_points };
-    
+
     fillPoly(frame, tri, Scalar(255, 255, 255));
     */
-    
-    
-    
+
     Mat display = frame.clone();
     Mat green = frame.clone();
     Mat framewhite = frame.clone();
@@ -112,33 +98,66 @@ int main() {
     setupImg(frame, framewhite, green);
 
     vector<vector<Point>> contours, green_cont;
-    
+    findContours(green, green_cont, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
     vector<Point> exits;
-    
+
     exits = getExits(frame);
 
-    
-    for(Point p : exits){
-		circle(display,p,5,Scalar(255,255,255),7,LINE_8,0);
-	}
+    for (Point p : exits) {
+      circle(display, p, 5, Scalar(255, 255, 255), 7, LINE_8, 0);
+    }
+    if (state == line_following||state == double_green||state == left_green||state == right_green) {
+      state = findGreen(green_cont, display,frame);
+    }
     
 
-    Point exit = chooseExit(exits,framewhite,display,previousentrance,previousexit);
-    previousexit = exit;
-    circle(display,exit,5,Scalar(0,0,255),7,LINE_8,0);
-    
-    
-    
-    int ang = getAngle(exit,frame.cols,frame.rows,Point(frame.cols/2,frame.rows/2));
+    switch (state) {
+    case line_following: {
+      Point exit = chooseExit(exits, framewhite, display, previousentrance,
+                              previousexit);
+      previousexit = exit;
+      circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
 
-    int adjust = ang*ka;
-	int LS = default_speed + adjust;
-	int RS = default_speed- adjust;
+      int ang = getAngle(exit, frame.cols, frame.rows,
+                         Point(frame.cols / 2, frame.rows / 2));
 
-	LS = clamp(LS, -100,100);
-	RS = clamp(RS, -100,100);
-    cout<<"RS:" <<RS<<"  LS"<<LS<<endl;
-sendSpeed(4,LS,RS);
+      int adjust = ang * ka;
+
+      int LS = default_speed + adjust;
+      int RS = default_speed - adjust;
+
+      // Slow BOTH motors based on angle
+      double speedScale = 1.0 - abs(ang) / 90.0;
+
+      speedScale = max(speedScale, 0.3);
+
+      LS *= speedScale;
+      RS *= speedScale;
+      LS = clamp(LS, -100, 100);
+      RS = clamp(RS, -100, 100);
+      cout << "RS:" << RS << "  LS" << LS << endl;
+      //sendSpeed(4, LS, RS);
+      break;
+    }
+    case left_green: {
+      cout << "left green" << endl;
+      Point exit = chooseLeft(exits, framewhite, display, previousentrance,previousexit);
+       circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+      
+      break;
+    }
+    case right_green: {
+      cout << "right green" << endl;
+      break;
+    }
+    case double_green: {
+      cout << "double green" << endl;
+      break;
+    }
+
+    default: {
+    }
+    }
     imshow("display", display);
     imshow("frame", frame);
     imshow("green", green);

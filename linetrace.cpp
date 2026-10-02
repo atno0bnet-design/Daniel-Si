@@ -128,10 +128,7 @@ vector<Point> getExits(Mat frame) {
           bottomgroups.push_back({p});
         }
       }
-      cout << "Top groups size:" << topgroups.size()
-           << "    Leftgrouups: " << leftgroups.size()
-           << "     right group: " << rightgroups.size() << "Bottom froups"
-           << bottomgroups.size() << endl;
+
 
       // merging groups
 
@@ -153,7 +150,7 @@ vector<Point> getExits(Mat frame) {
 
       // delete all tiny exits or big exits
 
-      cout << "beggining Size: " << allgroups.size() << endl;
+
       /*
             for (int i = 0; i < (int)allgroups.size(); i++) {
               if (allgroups.at(i).size() <= 50 || allgroups.at(i).size() >= 150)
@@ -161,15 +158,18 @@ vector<Point> getExits(Mat frame) {
               }
             }
              */
-      cout << "ending Size: " << allgroups.size() << endl;
+
       while (1) {
-        cout << "hhui1232323qweu" << endl;
+
         bool merged = false;
-        cout << "hhui112323122131231qweu" << endl;
+       
         for (int i = 1; i < (int)allgroups.size(); i++) {
-          cout << "hhui1qweu" << endl;
+			if(allgroups.at(i).size()>150){
+				continue;
+			}
+
           int dist = norm(allgroups[i].front() - allgroups[i - 1].back());
-          cout << "hhuiu" << endl;
+
           if (dist < 10) {
             allgroups[i - 1].insert(allgroups[i - 1].end(),
                                     allgroups[i].begin(), allgroups[i].end());
@@ -183,7 +183,6 @@ vector<Point> getExits(Mat frame) {
         if (allgroups.size() > 0) {
           cout << allgroups.back().back() << allgroups.front().front() << endl;
           int dist = norm(allgroups.back().back() - allgroups.front().front());
-          cout << "hi2" << endl;
           if (dist < 10) {
 
             allgroups.back().insert(allgroups.back().end(),
@@ -248,6 +247,7 @@ Point getIntersection(Mat framewhite, Mat &display) {
     }
     imshow("Dilated stuff", overlap);
 
+    vector<vector<Point>> c;
     vector<vector<Point>> intersection_cont;
     findContours(overlap, intersection_cont, RETR_EXTERNAL,
                  CHAIN_APPROX_SIMPLE);
@@ -363,3 +363,6 @@ double getAngle(Point exit, int col, int row, Point mid_point) {
 
   return angle;
 }
+
+
+

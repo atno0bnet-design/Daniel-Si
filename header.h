@@ -18,7 +18,18 @@
 #include <stdlib.h>
 
 
-
+enum State {
+  line_following,
+  double_green,left_green,right_green,
+  obstacle,
+  gap,
+  end,
+  find_alive_victim,
+  find_green_zone,
+  find_dead_victim,
+  find_dead_zone,
+  find_evac_exit
+};
 
 
 #define DEBUG
@@ -52,7 +63,9 @@ Point chooseExit(vector<Point> exits,Mat framewhite,Mat& display,Point& previous
 
 double getAngle(Point exit,int col,int row,Point mid_point);
 
+State findGreen(vector<vector<Point>> green_cont, Mat& display, Mat frame);
 
+Point chooseLeft(vector<Point> exits,Mat framewhite,Mat& display,Point& previousentrance, Point& previousexit);
 
 
 
