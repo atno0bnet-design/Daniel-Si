@@ -67,5 +67,9 @@ State findGreen(vector<vector<Point>> green_cont, Mat& display, Mat frame);
 
 Point chooseLeft(vector<Point> exits,Mat framewhite,Mat& display,Point& previousentrance, Point& previousexit);
 
+Point chooseRight(vector<Point> exits,Mat framewhite,Mat& display,Point& previousentrance, Point& previousexit);
+
+void speed_calc(int& LS, int& RS, Point exit);
+
 
 

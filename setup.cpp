@@ -48,7 +48,8 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
     cvtColor(green, green, COLOR_BGR2HSV);
 
     // home threshold for green
-    inRange(green, Scalar(86, 24, 41), Scalar(132, 211, 190), green);
+    //inRange(green, Scalar(86, 24, 41), Scalar(132, 211, 190), green);
+     inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
     // other threshold for green
     // inRange(green, Scalar(73, 123, 85), Scalar(99, 215,236), green);
 
@@ -65,6 +66,32 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
 bool contour_compare(const vector<Point> &a,const vector<Point> &b){
 	return contourArea(a)<contourArea(b);
 }
+
+
+void speed_calc(int& LS, int& RS, Point exit){
+	double ka = 3;
+	
+	const int default_speed = 45;
+	 int ang = getAngle(exit, 1640 / 4, 1232 / 4,
+                         Point((1640 / 4)/2, (1232 / 4)/2));
+
+      int adjust = ang * ka;
+
+      LS = default_speed + adjust;
+      RS = default_speed - adjust;
+
+      // Slow BOTH motors based on angle
+      double speedScale = 1.0 - abs(ang) / 90.0;
+
+      speedScale = max(speedScale, 0.3);
+
+      LS *= speedScale;
+      RS *= speedScale;
+      LS = clamp(LS, -100, 100);
+      RS = clamp(RS, -100, 100);
+}
+
+
 
 
 

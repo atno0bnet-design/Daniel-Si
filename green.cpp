@@ -227,8 +227,126 @@ Point chooseLeft(vector<Point> exits,Mat framewhite,Mat& display,Point& previous
     return exit;
 	}
 	if(exits.size()>2){
+		
+		
+		
 		Point intersection = getIntersection(framewhite, display);
-		return intersection;
+		double min_entrance_dist = DBL_MAX;
+    for (Point p : exits) {
+      double dist = norm(p - previousentrance);
+
+      if (dist < min_entrance_dist) {
+        min_entrance_dist = dist;
+        entrance = p;
+      }
+    }
+		
+		Point2f direction(intersection.x - entrance.x, intersection.y - entrance.y);
+
+    float length = sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (length > 0.001) {
+
+      direction /= length;
+
+      float distance = 1000;
+      Point far_point(intersection.x + direction.y * distance,
+                      intersection.y - direction.x * distance);
+      clipLine(display.size(), intersection, far_point);
+		
+		
+		
+		double min_exit_dist = DBL_MAX;
+    for (Point p : exits) {
+		if(p == entrance){
+			continue;
+		}
+      double dist = norm(p - far_point);
+
+      if (dist < min_exit_dist) {
+        min_exit_dist = dist;
+        exit = p;
+      }
+    }
+	
+		return exit;
+	}
+	}
+	
+		
+	
+	return Point(0,framewhite.rows/2);
+}
+
+
+
+
+
+
+
+
+
+
+Point chooseRight(vector<Point> exits,Mat framewhite,Mat& display,Point& previousentrance, Point& previousexit){
+	cout<<"choosing left exit"<<endl;
+	Point entrance, exit;
+	if(exits.size()==2){
+		double entrancedist1 = norm(exits.at(0) - previousentrance);
+    double entrancedist2 = norm(exits.at(1) - previousentrance);
+    if (entrancedist1 < entrancedist2) {
+      entrance = exits.at(0);
+      exit = exits.at(1);
+    } else {
+      entrance = exits.at(1);
+      exit = exits.at(0);
+    }
+    return exit;
+	}
+	if(exits.size()>2){
+		
+		
+		
+		Point intersection = getIntersection(framewhite, display);
+		double min_entrance_dist = DBL_MAX;
+    for (Point p : exits) {
+      double dist = norm(p - previousentrance);
+
+      if (dist < min_entrance_dist) {
+        min_entrance_dist = dist;
+        entrance = p;
+      }
+    }
+		
+		Point2f direction(intersection.x - entrance.x, intersection.y - entrance.y);
+
+    float length = sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (length > 0.001) {
+
+      direction /= length;
+
+      float distance = 1000;
+      Point far_point(intersection.x + direction.x * distance,
+                      intersection.y + direction.y * distance);
+      clipLine(display.size(), intersection, far_point);
+		
+		
+		
+		double min_exit_dist = DBL_MAX;
+    for (Point p : exits) {
+		if(p == entrance){
+			continue;
+		}
+      double dist = norm(p - far_point);
+
+      if (dist < min_exit_dist) {
+        min_exit_dist = dist;
+        exit = p;
+      }
+    }
+	
+		return exit;
+	}
 	}
 	
 		

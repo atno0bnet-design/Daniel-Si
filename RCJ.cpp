@@ -1,8 +1,8 @@
 #include "header.h"
 Point previousentrance(200, 400);
 Point previousexit(200, 0);
-const int default_speed = 45;
-double ka = 3;
+
+
 
 State state = line_following;
 
@@ -106,10 +106,11 @@ int main() {
     for (Point p : exits) {
       circle(display, p, 5, Scalar(255, 255, 255), 7, LINE_8, 0);
     }
+
     if (state == line_following||state == double_green||state == left_green||state == right_green) {
       state = findGreen(green_cont, display,frame);
     }
-    
+
 
     switch (state) {
     case line_following: {
@@ -117,37 +118,31 @@ int main() {
                               previousexit);
       previousexit = exit;
       circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-
-      int ang = getAngle(exit, frame.cols, frame.rows,
-                         Point(frame.cols / 2, frame.rows / 2));
-
-      int adjust = ang * ka;
-
-      int LS = default_speed + adjust;
-      int RS = default_speed - adjust;
-
-      // Slow BOTH motors based on angle
-      double speedScale = 1.0 - abs(ang) / 90.0;
-
-      speedScale = max(speedScale, 0.3);
-
-      LS *= speedScale;
-      RS *= speedScale;
-      LS = clamp(LS, -100, 100);
-      RS = clamp(RS, -100, 100);
+		int LS,RS;
+     speed_calc(LS,RS,exit);
       cout << "RS:" << RS << "  LS" << LS << endl;
-      //sendSpeed(4, LS, RS);
+      sendSpeed(4, LS, RS);
       break;
     }
     case left_green: {
       cout << "left green" << endl;
       Point exit = chooseLeft(exits, framewhite, display, previousentrance,previousexit);
        circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-      
+       int LS,RS;
+      speed_calc(LS,RS,exit);
+      cout << "RS:" << RS << "  LS" << LS << endl;
+       sendSpeed(4, LS, RS);
       break;
     }
     case right_green: {
       cout << "right green" << endl;
+      Point exit = chooseRight(exits, framewhite, display, previousentrance,previousexit);
+       circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+       int LS,RS;
+      speed_calc(LS,RS,exit);
+      cout << "RS:" << RS << "  LS" << LS << endl;
+       sendSpeed(4, LS, RS);
+      
       break;
     }
     case double_green: {
