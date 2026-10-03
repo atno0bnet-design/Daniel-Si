@@ -19,7 +19,7 @@ State findGreen(vector<vector<Point>> green_cont, Mat& display,Mat frame){
 				}
 				
 	
-				if(contourArea(green_cont[i])>3000&&cy>150){
+				if(contourArea(green_cont[i])>3000&&cy>40){
 					/*#ifdef DEBUG
 					drawContours(display,vector<vector<Point>>(1,green_cont[i]),0,Scalar(0,255,0),3);
 					#endif
@@ -317,19 +317,28 @@ Point chooseRight(vector<Point> exits,Mat framewhite,Mat& display,Point& previou
       }
     }
 		
-		Point2f direction(intersection.x - entrance.x, intersection.y - entrance.y);
+		Point2f direction(intersection.x - entrance.x,
+                  intersection.y - entrance.y);
 
-    float length = sqrt(direction.x * direction.x + direction.y * direction.y);
+float length = sqrt(direction.x * direction.x +
+                    direction.y * direction.y);
 
-    if (length > 0.001) {
+if (length > 0.001) {
 
-      direction /= length;
+    direction /= length;
 
-      float distance = 1000;
-      Point far_point(intersection.x + direction.x * distance,
-                      intersection.y + direction.y * distance);
-      clipLine(display.size(), intersection, far_point);
-		
+// Rotate 90 degrees RIGHT in OpenCV image coordinates
+Point2f right_direction(-direction.y, direction.x);
+
+float distance = 1000;
+
+Point far_point(
+    intersection.x + right_direction.x * distance,
+    intersection.y + right_direction.y * distance
+);
+
+clipLine(display.size(), intersection, far_point);
+
 		
 		
 		double min_exit_dist = DBL_MAX;

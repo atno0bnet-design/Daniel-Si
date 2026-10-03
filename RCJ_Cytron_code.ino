@@ -36,7 +36,7 @@ Adafruit_BNO055 bno(55, 0x28);
 
 
 int og = 0;
-bnodata data = {0,0,0};
+//bnodata data = {0,0,0};
 int condition = 0;
 
 int L_motor = 0;

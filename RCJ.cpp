@@ -127,6 +127,7 @@ int main() {
     case left_green: {
       cout << "left green" << endl;
       Point exit = chooseLeft(exits, framewhite, display, previousentrance,previousexit);
+      putText(display, "Left", Point(50,50), FONT_HERSHEY_SIMPLEX,1.2,Scalar(0,0,255),2,LINE_AA);
        circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
        int LS,RS;
       speed_calc(LS,RS,exit);
@@ -137,6 +138,7 @@ int main() {
     case right_green: {
       cout << "right green" << endl;
       Point exit = chooseRight(exits, framewhite, display, previousentrance,previousexit);
+      putText(display, "Right", Point(50,50), FONT_HERSHEY_SIMPLEX,1.2,Scalar(0,0,255),2,LINE_AA);
        circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
        int LS,RS;
       speed_calc(LS,RS,exit);
