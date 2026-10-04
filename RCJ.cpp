@@ -1,11 +1,7 @@
 #include "header.h"
-Point previousentrance(200, 400);
-Point previousexit(200, 0);
-
-
 
 State state = line_following;
-
+Point currentExit;
 int main() {
 
   //{ setting up camera
@@ -107,51 +103,105 @@ int main() {
       circle(display, p, 5, Scalar(255, 255, 255), 7, LINE_8, 0);
     }
 
-    if (state == line_following||state == double_green||state == left_green||state == right_green) {
-      state = findGreen(green_cont, display,frame);
+    if (state == line_following || state == double_green ||
+        state == left_green || state == right_green) {
+      state = findGreen(green_cont, display, frame);
     }
 
+    if (state == line_following||state==gap) {
+      state = checkGap(exits);
+    }
 
     switch (state) {
     case line_following: {
-      Point exit = chooseExit(exits, framewhite, display, previousentrance,
-                              previousexit);
-      previousexit = exit;
-      circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-		int LS,RS;
-     speed_calc(LS,RS,exit);
+      currentExit = chooseExit(exits, framewhite, display, previousentrance,
+                               previousexit);
+      previousexit = currentExit;
+      circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+      int LS, RS;
+      speed_calc(LS, RS, currentExit);
       cout << "RS:" << RS << "  LS" << LS << endl;
       sendSpeed(4, LS, RS);
       break;
     }
     case left_green: {
       cout << "left green" << endl;
-      Point exit = chooseLeft(exits, framewhite, display, previousentrance,previousexit);
-      putText(display, "Left", Point(50,50), FONT_HERSHEY_SIMPLEX,1.2,Scalar(0,0,255),2,LINE_AA);
-       circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-       int LS,RS;
-      speed_calc(LS,RS,exit);
+      currentExit = chooseLeft(exits, framewhite, display, previousentrance,
+                               previousexit);
+      putText(display, "Left", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
+              Scalar(0, 0, 255), 2, LINE_AA);
+      circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+      int LS, RS;
+      speed_calc(LS, RS, currentExit);
       cout << "RS:" << RS << "  LS" << LS << endl;
-       sendSpeed(4, LS, RS);
+      sendSpeed(4, LS, RS);
       break;
     }
     case right_green: {
       cout << "right green" << endl;
-      Point exit = chooseRight(exits, framewhite, display, previousentrance,previousexit);
-      putText(display, "Right", Point(50,50), FONT_HERSHEY_SIMPLEX,1.2,Scalar(0,0,255),2,LINE_AA);
-       circle(display, exit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-       int LS,RS;
-      speed_calc(LS,RS,exit);
+      currentExit = chooseRight(exits, framewhite, display, previousentrance,
+                                previousexit);
+      putText(display, "Right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
+              Scalar(0, 0, 255), 2, LINE_AA);
+      circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+      int LS, RS;
+      speed_calc(LS, RS, currentExit);
       cout << "RS:" << RS << "  LS" << LS << endl;
-       sendSpeed(4, LS, RS);
-      
+      sendSpeed(4, LS, RS);
+
       break;
     }
     case double_green: {
       cout << "double green" << endl;
+      putText(display, "Double", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
+              Scalar(0, 0, 255), 2, LINE_AA);
+
+      imshow("display", display);
+      int key = waitKey(1);
+      if (key == 'q') {
+        break;
+      }
+      sendSpeed(3, 0, 0);
+      waitForcytron();
+      state = line_following;
       break;
     }
-
+    case gap: {
+      cout << "gap" << endl;
+      currentExit = getGapexit(frame, exits.at(0));
+      circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
+      if (currentExit.y < 180) {
+        int LS, RS;
+        speed_calc(LS, RS, currentExit);
+        cout << "RS:" << RS << "  LS" << LS << endl;
+        sendSpeed(4, LS, RS);
+        break;
+      }
+    }
+    case alignment: {
+		
+      cout << "Alignment" << endl;
+      double ang = getAngle(currentExit, frame.cols, frame.rows, exits.at(0));
+      cout << "ang:" << ang << endl;
+      sendSpeed(5,0,0);
+      cout<<"sended"<<endl;
+		while(1){
+			cout<<"in while loop"<<endl;
+				sendSpeed(4,0,0);
+				this_thread::sleep_for(1090ms);
+		}
+      if(abs(ang)>5){
+      if(ang > 0){
+		  sendSpeed(1, ang, 1);
+	  }
+	  else{
+		  sendSpeed(1,ang,-90);
+		}
+      }
+      sendSpeed(4,0,0);
+		while(1);
+      break;
+    }
     default: {
     }
     }
@@ -162,6 +212,13 @@ int main() {
     writer.write(display);
     thresh.write(frame);
     int key = waitKey(1);
+    if(key == ' '){
+		while(key==' '){
+			sendSpeed(4,0,0);
+			this_thread::sleep_for(1000ms);
+			key = waitKey(1);
+		}
+	}
     if (key == 'q')
       break;
   }

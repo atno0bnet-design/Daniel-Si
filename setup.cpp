@@ -30,13 +30,17 @@ void waitForcytron(){
 
 void sendSpeed(int condition, int LS, int RS){
 	char buff[255];
-	sprintf(buff, "[%d,%d,%d]\n", condition, LS, RS);
+	sprintf(buff, "[%d,%d,%d]", condition, LS, RS);
+	
+	
+	cout<<buff<<endl;
 	int count = write(uart0_filestream,&buff[0],strlen(buff));
+	
 	if(count < 0){
 		printf("Error sending the message");		
 	}
 	
-	//this_thread::sleep_for(1ms);
+	this_thread::sleep_for(10ms);
 	
 }
 
@@ -48,17 +52,18 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
     cvtColor(green, green, COLOR_BGR2HSV);
 
     // home threshold for green
-    //inRange(green, Scalar(86, 24, 41), Scalar(132, 211, 190), green);
-     inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
-    // other threshold for green
-    // inRange(green, Scalar(73, 123, 85), Scalar(99, 215,236), green);
 
+     //inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
+    // other threshold for green
+     inRange(green, Scalar(29, 107, 106), Scalar(86, 255,185), green);
+	
     threshold(framewhite, framewhite, 110, 255, THRESH_BINARY);
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(25, 25));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
    // morphologyEx(framewhite, framewhite, MORPH_CLOSE, kernel);
 
     threshold(frame, frame, 60, 255, THRESH_BINARY_INV);
     morphologyEx(frame, frame, MORPH_CLOSE, kernel);
+    morphologyEx(green, green, MORPH_CLOSE, kernel);
 }
 
 
