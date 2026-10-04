@@ -74,9 +74,6 @@ void setup() {
 }
 
 void loop() {
-  while(true){
-    move(45,45);  
-  }
   data.updateOrientation();
 
   //Serial.printf("BNO data x:%d y:%d z:%d\n", data.x, data.y, data.z);
@@ -95,10 +92,17 @@ void loop() {
 
 
   if(Serial1.available()) {
-    delay(5);
+    while (Serial1.available() && Serial1.peek() != '[') {
+        Serial1.read();
+    }
+    
+
+    if(Serial1.available()&&Serial1.peek()=='['){
+    Serial1.read();
       condition = Serial1.parseInt();
       L_motor = Serial1.parseInt();
       R_motor = Serial1.parseInt();
+      Serial1.read();
       Serial.printf("Condition: %d    L: %d    R: %d\n",condition,L_motor,R_motor);
       switch (condition) {
         case 1: {
@@ -146,10 +150,7 @@ void loop() {
            }
       }
 
-      while(Serial1.available()) {
-        Serial1.read();
-        }
-      
+    }
     }
 
 
