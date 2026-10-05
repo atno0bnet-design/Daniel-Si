@@ -62,10 +62,19 @@ void setup() {
 
   tofinit();
   servoSetup();
-  while(digitalRead(21));
-  cupUp();
+  while (1) {
+    if (!digitalRead(21)) {
+      cupUp();
+      break;
+    }
+    if (!digitalRead(20)) {
+      cupDown();
+      break;
+    }
+
+  }
   delay(500);
-  
+
   Serial1.write('z');
 
 
@@ -74,36 +83,36 @@ void setup() {
 }
 
 void loop() {
-  data.updateOrientation();
+  //data.updateOrientation();
 
   //Serial.printf("BNO data x:%d y:%d z:%d\n", data.x, data.y, data.z);
 
 
 
-  dist.update_dist();
+  //dist.update_dist();
 
 
   //Serial.printf("left back: %d left front %d right back %d right front %d\n", dist.left_back, dist.left_front, dist.right_back, dist.right_front);
-  
-  
-
-  
 
 
 
-  if(Serial1.available()) {
+
+
+
+
+  if (Serial1.available()) {
     while (Serial1.available() && Serial1.peek() != '[') {
-        Serial1.read();
+      Serial1.read();
     }
-    
 
-    if(Serial1.available()&&Serial1.peek()=='['){
-    Serial1.read();
+
+    if (Serial1.available() && Serial1.peek() == '[') {
+      Serial1.read();
       condition = Serial1.parseInt();
       L_motor = Serial1.parseInt();
       R_motor = Serial1.parseInt();
       Serial1.read();
-      Serial.printf("Condition: %d    L: %d    R: %d\n",condition,L_motor,R_motor);
+      Serial.printf("Condition: %d    L: %d    R: %d\n", condition, L_motor, R_motor);
       switch (condition) {
         case 1: {
             stop(100);
@@ -119,9 +128,11 @@ void loop() {
             }
             Serial.println("Done turning");
             stop(100);
-            while (1);
+            move(45,45);
+            delay(500);
             Serial1.write('z');
             break;
+            
           }
         case 2: {
             //right
@@ -133,25 +144,25 @@ void loop() {
             break;
           }
         case 4: {
-            Serial.printf("RS: %d\nLS: %d\n",R_motor, L_motor);
+            Serial.printf("RS: %d\nLS: %d\n", R_motor, L_motor);
 
             move(L_motor, R_motor);
             break;
           }
-          case 5:{
-            
-            tone(22,800,440);
-            move(0,0);
-            break; 
-           }
-          default:{
-              tone(22,100,220);
-              break; 
-           }
+        case 5: {
+
+            tone(22, 800, 440);
+            move(0, 0);
+            break;
+          }
+        default: {
+            tone(22, 100, 220);
+            break;
+          }
       }
 
     }
-    }
+  }
 
 
 

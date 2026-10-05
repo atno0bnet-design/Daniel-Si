@@ -270,7 +270,9 @@ Point chooseExit(vector<Point> exits, Mat framewhite, Mat &display,
                  Point &previousentrance, Point &previousexit) {
   Point exit;
   Point entrance;
-
+	if(exits.size()==1){
+		return exits.at(0);
+	}
   if (exits.size() > 2) {
     Point intersection = getIntersection(framewhite, display);
     
@@ -327,41 +329,14 @@ Point chooseExit(vector<Point> exits, Mat framewhite, Mat &display,
   return Point(0, 0);
 }
 
-double getAngle(Point exit, int col, int row, Point mid_point) {
-  double angle = 0;
+double getAngle(Point exit, Point mid_point) {
+    double dx = exit.x - mid_point.x;
+    double dy = exit.y - mid_point.y;
 
-  Point top_point = {col / 2, 0};
+    if (dx == 0 && dy == 0)
+        return 0.0;
 
-  Point a = exit;
-  Point b = mid_point;
-  Point c = top_point;
-
-  Point ba = a - b;
-  Point2d bc = c - b;
-
-  // Calculate dot product and magnitudes
-  double dotProduct = ba.x * bc.x + ba.y * bc.y;
-  double lenBA = std::sqrt(ba.x * ba.x + ba.y * ba.y);
-  double lenBC = std::sqrt(bc.x * bc.x + bc.y * bc.y);
-
-  // Guard against division by zero if points overlap
-  if (lenBA == 0 || lenBC == 0)
-    return 0.0;
-
-  // Calculate cosine value and clamp it to avoid rounding errors outside [-1,
-  // 1]
-  double cosTheta = dotProduct / (lenBA * lenBC);
-  cosTheta = std::max(-1.0, std::min(1.0, cosTheta));
-
-  // Get angle in radians and convert to degrees
-  double angleRad = std::acos(cosTheta);
-  double angle_deg = angleRad * (180.0 / M_PI);
-  if (exit.x < col / 2.0) {
-    angle_deg *= -1;
-  }
-  angle = angle_deg;
-
-  return angle;
+    return atan2(dx, -dy) * 180.0 / M_PI;
 }
 
 

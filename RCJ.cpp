@@ -111,6 +111,12 @@ int main() {
     if (state == line_following||state==gap) {
       state = checkGap(exits);
     }
+    
+    if(state== move_forward){
+		if(exits.size()>0){
+			state = line_following;
+		}
+	}
 
     switch (state) {
     case line_following: {
@@ -170,7 +176,8 @@ int main() {
       cout << "gap" << endl;
       currentExit = getGapexit(frame, exits.at(0));
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
-      if (currentExit.y < 180) {
+      double gap_dist = norm(currentExit-exits.at(0));
+      if (gap_dist > 200) {
         int LS, RS;
         speed_calc(LS, RS, currentExit);
         cout << "RS:" << RS << "  LS" << LS << endl;
@@ -181,27 +188,26 @@ int main() {
     case alignment: {
 		
       cout << "Alignment" << endl;
-      double ang = getAngle(currentExit, frame.cols, frame.rows, exits.at(0));
+      double ang = getAngle(currentExit,exits.at(0));
       cout << "ang:" << ang << endl;
-      sendSpeed(5,0,0);
+
       cout<<"sended"<<endl;
-		while(1){
-			cout<<"in while loop"<<endl;
-				sendSpeed(4,0,0);
-				this_thread::sleep_for(1090ms);
-		}
-      if(abs(ang)>5){
+
+      
       if(ang > 0){
 		  sendSpeed(1, ang, 1);
 	  }
 	  else{
 		  sendSpeed(1,ang,-90);
 		}
-      }
-      sendSpeed(4,0,0);
-		while(1);
+      waitForcytron();
+      state = move_forward;
       break;
     }
+    case move_forward:{
+		sendSpeed(4,45,45);
+		break;
+	}
     default: {
     }
     }

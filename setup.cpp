@@ -39,8 +39,7 @@ void sendSpeed(int condition, int LS, int RS){
 	if(count < 0){
 		printf("Error sending the message");		
 	}
-	
-	this_thread::sleep_for(10ms);
+
 	
 }
 
@@ -53,9 +52,9 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
 
     // home threshold for green
 
-     //inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
+     inRange(green, Scalar(92, 101, 49), Scalar(113, 255, 220), green);
     // other threshold for green
-     inRange(green, Scalar(29, 107, 106), Scalar(86, 255,185), green);
+     //inRange(green, Scalar(29, 107, 106), Scalar(86, 255,185), green);
 	
     threshold(framewhite, framewhite, 110, 255, THRESH_BINARY);
     Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
@@ -77,8 +76,7 @@ void speed_calc(int& LS, int& RS, Point exit){
 	double ka = 3;
 	
 	const int default_speed = 45;
-	 int ang = getAngle(exit, 1640 / 4, 1232 / 4,
-                         Point((1640 / 4)/2, (1232 / 4)/2));
+	 int ang = getAngle(exit, Point((1640 / 4)/2, (1232 / 4)/2));
 
       int adjust = ang * ka;
 
