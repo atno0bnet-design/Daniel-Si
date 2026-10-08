@@ -27,7 +27,7 @@ void setup() {
   Serial1.setTX(0);
   Serial1.begin(115200);
   delay(2000);
-
+  while(!Serial);
   Wire.setSCL(29);
   Wire.setSDA(28);
   Wire.begin();
@@ -59,10 +59,18 @@ void setup() {
     ring.show();
   }
 
+  colorinit();
+while(true){
+  uint16_t r,g,b,c;
+  cupcolor.getColorData(&r,&g,&b,&c);
 
+  Serial.printf("Red: %d Green: %d Blue: %d Clear: %d\n",r,g,b,c);
+}
+  
   tofinit();
   servoSetup();
   while (1) {
+    Serial.println(getDist());
     if (!digitalRead(21)) {
       cupUp();
       break;
@@ -83,6 +91,11 @@ void setup() {
 }
 
 void loop() {
+  if(obby()==true){
+    stop(100);
+    
+    while(1);  
+  }
   //data.updateOrientation();
 
   //Serial.printf("BNO data x:%d y:%d z:%d\n", data.x, data.y, data.z);
