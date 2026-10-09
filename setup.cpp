@@ -57,7 +57,7 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
      //inRange(green, Scalar(29, 107, 106), Scalar(86, 255,185), green);
 	
     threshold(framewhite, framewhite, 110, 255, THRESH_BINARY);
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(40, 40));
    // morphologyEx(framewhite, framewhite, MORPH_CLOSE, kernel);
 
     threshold(frame, frame, 60, 255, THRESH_BINARY_INV);
@@ -92,6 +92,38 @@ void speed_calc(int& LS, int& RS, Point exit){
       RS *= speedScale;
       LS = clamp(LS, -100, 100);
       RS = clamp(RS, -100, 100);
+}
+
+
+optional<State> check_message(){
+	char rx_buff[255];
+	int rx_length = read(uart0_filestream,(void*)rx_buff,255);
+	if(rx_length!=0){
+		switch(rx_buff[0]){
+			case 'o':{
+				return obstacle;
+				break;
+			}
+			case 'l':{
+				return left_obstacle;
+				break;
+			}
+			case 'r':{
+				return right_obstacle;
+				break;
+			}
+			
+			default:{
+				return nullopt;
+			}
+		}
+	}
+	else{
+		return nullopt;
+	}
+	
+	
+	
 }
 
 

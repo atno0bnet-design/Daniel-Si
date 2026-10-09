@@ -27,7 +27,6 @@ void setup() {
   Serial1.setTX(0);
   Serial1.begin(115200);
   delay(2000);
-  while(!Serial);
   Wire.setSCL(29);
   Wire.setSDA(28);
   Wire.begin();
@@ -60,15 +59,10 @@ void setup() {
   }
 
   colorinit();
-while(true){
-  uint16_t r,g,b,c;
-  cupcolor.getColorData(&r,&g,&b,&c);
 
-  Serial.printf("Red: %d Green: %d Blue: %d Clear: %d\n",r,g,b,c);
-}
-  
+
   tofinit();
-  servoSetup();
+  //servoSetup();
   while (1) {
     Serial.println(getDist());
     if (!digitalRead(21)) {
@@ -91,10 +85,32 @@ while(true){
 }
 
 void loop() {
-  if(obby()==true){
+  if (obby() == true) {
     stop(100);
-    
-    while(1);  
+    while(Serial1.available()){
+      Serial1.read();  
+    }
+    Serial1.write('o');
+    dist.update_dist();
+    delay(500);
+    int leftdist = (dist.left_front + dist.left_back) / 2;
+    int rightdist = (dist.right_front + dist.right_back) / 2;
+    Serial.printf("Left dist: %d    Right dist: %d\n", leftdist, rightdist);
+    if (leftdist > rightdist) {
+
+
+      Serial1.write('l');
+      Serial.println("Left side");
+      turnleft(90);
+      leftObstacle();
+    }
+    else {
+      Serial1.write('r');
+      Serial.println("Right side");
+      turnright(90);
+      rightObstacle();
+    }
+    while (1);
   }
   //data.updateOrientation();
 
@@ -141,11 +157,11 @@ void loop() {
             }
             Serial.println("Done turning");
             stop(100);
-            move(45,45);
+            move(45, 45);
             delay(500);
             Serial1.write('z');
             break;
-            
+
           }
         case 2: {
             //right

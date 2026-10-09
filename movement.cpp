@@ -18,7 +18,7 @@ void stop(int time)
 
 }
 
-void move(int L,int R) {
+void move(int L, int R) {
   motorFL.speed(L);
   motorBL.speed(L);
   motorFR.speed(-R);
@@ -58,7 +58,7 @@ void turnright(float degrees) {
 
 
 void turnleft(float degrees) {
- 
+
   stop(100);
   data.updateOrientation();
 
@@ -89,33 +89,80 @@ void turnleft(float degrees) {
 
 
 
-void servoSetup(){
+void servoSetup() {
   cupDown();
-  leftServo.attach(5,400,2400);
-  rightServo.attach(4,400,2400); 
+  leftServo.attach(5, 400, 2400);
+  rightServo.attach(4, 400, 2400);
   cupDown();
 }
 
 
 
-void cupUp(){
+void cupUp() {
   leftServo.write(75);
   rightServo.write(95);
   delay(100);
 }
 
-void cupDown(){
+void cupDown() {
   leftServo.write(175);
   rightServo.write(5);
   delay(100);
 }
 
-void cupMid(){
-  
+void cupMid() {
+
 }
 
 
 
 
+void rightObstacle() {
 
-  
+  while (true) {
+    if(Serial1.available()){
+      stop(100);
+      while(1);  
+    }
+    dist.update_dist();
+    int d = dist.left_front;
+    Serial.printf("dist:%d\n", d);
+    while (d > 15) {
+      dist.update_dist();
+      d = dist.left_front;
+      Serial.printf("dist:%d\n", d);
+      move(-45, 45);
+    }
+    stop(5);
+    move(50, 50);
+    delay(100);
+    stop(5);
+  }
+
+
+
+}
+
+
+void leftObstacle() {
+  while (true) {
+    if(Serial1.available()){
+      stop(100);
+      while(1);  
+    }
+    dist.update_dist();
+    int d = dist.right_front;
+    Serial.printf("dist:%d\n", d);
+    while (d > 15) {
+      dist.update_dist();
+      d = dist.right_front;
+      Serial.printf("dist:%d\n", d);
+      move(45, -45);
+    }
+    stop(5);
+    move(50, 50);
+    delay(100);
+    stop(5);
+  }
+
+}

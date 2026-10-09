@@ -154,3 +154,8 @@ void cupMid();
 bool obby();
 
 void colorinit();
+
+
+void leftObstacle();
+
+void rightObstacle();

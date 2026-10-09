@@ -20,7 +20,7 @@ vector<Point> getExits(Mat frame) {
     black_line =
         *max_element(contours.begin(), contours.end(), contour_compare);
 
-    if (contourArea(black_line) > 5000) {
+    if (contourArea(black_line) > 7000) {
       vector<Point> top, bottom, left, right;
 
       for (Point p : black_line) {

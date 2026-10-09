@@ -1,6 +1,7 @@
 #include "header.h"
 
 State state = line_following;
+bool wait_for_disappear = false;
 Point currentExit;
 int main() {
 
@@ -95,6 +96,22 @@ int main() {
 
     vector<vector<Point>> contours, green_cont;
     findContours(green, green_cont, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+    findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
+    if(wait_for_disappear==true){
+		findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
+		if(contours.size()>0){
+		vector<Point> c = *max_element(contours.begin(), contours.end(), contour_compare);
+		if(contourArea(c)>1000){
+			continue;
+		}
+		else{
+			wait_for_disappear = false;
+		}
+		}
+		else{
+			wait_for_disappear = false;
+		}
+	}
     vector<Point> exits;
 
     exits = getExits(frame);
@@ -117,7 +134,16 @@ int main() {
 			state = line_following;
 		}
 	}
-
+	
+	auto s = check_message();
+	if(s){
+		cout<<"obstacle"<<endl;
+		if(s.value()==obstacle){
+			cout<<"OOooObbyyy"<<endl;
+		}
+		state = obstacle;
+	}
+	
     switch (state) {
     case line_following: {
       currentExit = chooseExit(exits, framewhite, display, previousentrance,
@@ -177,7 +203,7 @@ int main() {
       currentExit = getGapexit(frame, exits.at(0));
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       double gap_dist = norm(currentExit-exits.at(0));
-      if (gap_dist > 200) {
+      if (gap_dist > 125) {
         int LS, RS;
         speed_calc(LS, RS, currentExit);
         cout << "RS:" << RS << "  LS" << LS << endl;
@@ -195,9 +221,13 @@ int main() {
 
       
       if(ang > 0){
+		  if(abs(ang>30))
+		  ang -= (ang*0.15);
 		  sendSpeed(1, ang, 1);
 	  }
 	  else{
+		  if(abs(ang>30))
+		  ang += (ang*0.15);
 		  sendSpeed(1,ang,-90);
 		}
       waitForcytron();
@@ -206,6 +236,49 @@ int main() {
     }
     case move_forward:{
 		sendSpeed(4,45,45);
+		break;
+	}
+	case obstacle:{
+		while(true){
+			auto side = check_message();
+			if(side){
+			if(side.value() == left_obstacle){
+				state = left_obstacle;
+				wait_for_disappear = true;
+				break;
+			}
+			if(side.value() == right_obstacle){
+				
+				state = right_obstacle;
+				wait_for_disappear = true;
+				break;
+			}
+		}
+		}
+		
+		break;
+	}
+	case left_obstacle:{
+		cout<<"left obby"<<endl;
+		putText(display, "Searching right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
+              Scalar(0, 0, 255), 2, LINE_AA);
+              if(check_right(frame,display) == true){
+			cout<<"Line found"<<endl;
+			sendSpeed(99,0,0);
+			while(1);
+			
+		}
+		break;
+	}
+	case right_obstacle:{
+		cout<<"right obby"<<endl;
+		putText(display, "Searching left", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
+              Scalar(0, 0, 255), 2, LINE_AA);
+		if(check_left(frame,display) == true){
+			cout<<"Line found"<<endl;
+			sendSpeed(99,0,0);
+			while(1);
+		}
 		break;
 	}
     default: {
