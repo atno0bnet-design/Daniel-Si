@@ -120,9 +120,12 @@ void cupMid() {
 void rightObstacle() {
 
   while (true) {
-    if(Serial1.available()){
+     if(Serial1.available()){
+      while(Serial1.available()){
+        Serial1.read();  
+      }
       stop(100);
-      while(1);  
+      break; 
     }
     dist.update_dist();
     int d = dist.left_front;
@@ -147,8 +150,11 @@ void rightObstacle() {
 void leftObstacle() {
   while (true) {
     if(Serial1.available()){
+      while(Serial1.available()){
+        Serial1.read();  
+      }
       stop(100);
-      while(1);  
+      break; 
     }
     dist.update_dist();
     int d = dist.right_front;

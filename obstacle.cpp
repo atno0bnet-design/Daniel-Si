@@ -2,8 +2,8 @@
 
 
 bool check_left(Mat frame,Mat& display){
-	Point topleft(0,frame.rows-70);
-	Point bottomright((frame.cols/2)-1,frame.rows-1);
+	Point topleft(0,frame.rows-70-100);
+	Point bottomright((frame.cols/2)-1,frame.rows-1-100);
 	Rect search_area(topleft,bottomright);
 	
 	rectangle(display, search_area, Scalar(255, 255, 255), 1);
@@ -22,8 +22,8 @@ bool check_left(Mat frame,Mat& display){
 
 
 bool check_right(Mat frame, Mat& display){
-	Point topleft(frame.cols/2,frame.rows-70);
-	Point bottomright(frame.cols-1,frame.rows-1);
+	Point topleft(frame.cols/2,frame.rows-70-100);
+	Point bottomright(frame.cols-1,frame.rows-1-100);
 	Rect search_area(topleft,bottomright);
 	
 	

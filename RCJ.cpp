@@ -203,7 +203,7 @@ int main() {
       currentExit = getGapexit(frame, exits.at(0));
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       double gap_dist = norm(currentExit-exits.at(0));
-      if (gap_dist > 125) {
+      if (gap_dist > 140) {
         int LS, RS;
         speed_calc(LS, RS, currentExit);
         cout << "RS:" << RS << "  LS" << LS << endl;
@@ -262,11 +262,20 @@ int main() {
 		cout<<"left obby"<<endl;
 		putText(display, "Searching right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
               Scalar(0, 0, 255), 2, LINE_AA);
-              if(check_right(frame,display) == true){
+             if(check_left(frame,display) == true){
 			cout<<"Line found"<<endl;
 			sendSpeed(99,0,0);
-			while(1);
 			
+			int dist = INT_MAX;
+			Point p;
+			for(Point e : exits){
+				if(norm(e-Point(0,frame.rows/2))<dist){
+					p = e;
+				}
+			}
+			previousexit = p;
+			
+			state = line_following;
 		}
 		break;
 	}
@@ -277,13 +286,26 @@ int main() {
 		if(check_left(frame,display) == true){
 			cout<<"Line found"<<endl;
 			sendSpeed(99,0,0);
-			while(1);
+			
+			int dist = INT_MAX;
+			Point p;
+			for(Point e : exits){
+				if(norm(e-Point(frame.cols,frame.rows/2))<dist){
+					p = e;
+				}
+			}
+			previousexit = p;
+			
+			state = line_following;
 		}
+		
 		break;
 	}
     default: {
     }
     }
+     circle(display, previousexit, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
+      circle(display, previousentrance, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
     imshow("display", display);
     imshow("frame", frame);
     imshow("green", green);

@@ -32,7 +32,7 @@ Point getGapexit(Mat frame, Point entrance){
 		
 
 		black_line = *max_element(contours.begin(), contours.end(), contour_compare);
-		if(contourArea(black_line)>7000){
+		if(contourArea(black_line)>2000){
 			
 			
 			

@@ -103,14 +103,15 @@ void loop() {
       Serial.println("Left side");
       turnleft(90);
       leftObstacle();
+
     }
     else {
       Serial1.write('r');
       Serial.println("Right side");
       turnright(90);
       rightObstacle();
+
     }
-    while (1);
   }
   //data.updateOrientation();
 
