@@ -44,9 +44,11 @@ void sendSpeed(int condition, int LS, int RS){
 }
 
 
-void setupImg(Mat& frame, Mat& framewhite, Mat& green){
+void setupImg(Mat& frame, Mat& framewhite, Mat& green,Mat& frontframe){
+	
 	blur(frame, frame, Size(3, 3));
 	 cvtColor(frame, frame, COLOR_BGR2GRAY);
+	 cvtColor(frontframe,frontframe,COLOR_BGR2GRAY);
 	 cvtColor(framewhite, framewhite, COLOR_BGR2GRAY);
     cvtColor(green, green, COLOR_BGR2HSV);
 
@@ -62,6 +64,8 @@ void setupImg(Mat& frame, Mat& framewhite, Mat& green){
 
     threshold(frame, frame, 60, 255, THRESH_BINARY_INV);
     morphologyEx(frame, frame, MORPH_CLOSE, kernel);
+    threshold(frontframe, frontframe, 130, 255, THRESH_BINARY_INV);
+    //morphologyEx(frontframe, frontframe, MORPH_CLOSE, kernel);
     morphologyEx(green, green, MORPH_CLOSE, kernel);
 }
 

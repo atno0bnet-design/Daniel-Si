@@ -10,8 +10,8 @@ int main() {
   lccv::PiCamera frontcam;
 
   frontcam.options->camera = 0;
-  frontcam.options->video_width = 100;
-  frontcam.options->video_height = 100;
+  frontcam.options->video_width = 1640;
+  frontcam.options->video_height = 1232;
   frontcam.options->framerate = 30;
 
   lccv::PiCamera cam;
@@ -69,8 +69,24 @@ int main() {
       cout << "Frame empty" << endl;
       break;
     }
-
+    
+    if (!frontcam.getVideoFrame(frontframe, 1000)) {
+      cout << "CAM ERROR" << endl;
+      break;
+    }
+    if (frontframe.empty()) {
+      cout << "frontFrame empty" << endl;
+      break;
+    }
+	
     resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
+    resize(frontframe, frontframe, Size(frontframe.cols / 4, frontframe.rows / 4));
+    flip(frontframe,frontframe,0);
+    
+    Point topleft(110,(frontframe.rows/2)+20);
+	Point bottomright(frontframe.cols-110,frontframe.rows);
+	Rect roi(topleft,bottomright);
+	frontframe = frontframe(roi);
 
     /*
     Mat mask = cv::Mat::zeros(frame.size(), CV_8UC1);
@@ -91,9 +107,13 @@ int main() {
     Mat display = frame.clone();
     Mat green = frame.clone();
     Mat framewhite = frame.clone();
-
-    setupImg(frame, framewhite, green);
-
+	Mat frontdisplay = frontframe.clone();
+    setupImg(frame, framewhite, green,frontframe);
+    
+imshow("front", frontframe);
+imshow("frontdiplay", frontdisplay);
+    waitKey(1);
+    continue;
     vector<vector<Point>> contours, green_cont;
     findContours(green, green_cont, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
     findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
@@ -262,7 +282,7 @@ int main() {
 		cout<<"left obby"<<endl;
 		putText(display, "Searching right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
               Scalar(0, 0, 255), 2, LINE_AA);
-             if(check_left(frame,display) == true){
+             if(check_right(frame,display) == true){
 			cout<<"Line found"<<endl;
 			sendSpeed(99,0,0);
 			
@@ -307,9 +327,10 @@ int main() {
      circle(display, previousexit, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
       circle(display, previousentrance, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
     imshow("display", display);
-    imshow("frame", frame);
-    imshow("green", green);
-    imshow("framewhite", framewhite);
+    //imshow("frame", frame);
+    //imshow("green", green);
+    //imshow("framewhite", framewhite);
+    
     writer.write(display);
     thresh.write(frame);
     int key = waitKey(1);
