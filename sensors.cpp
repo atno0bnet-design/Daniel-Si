@@ -151,7 +151,7 @@ void colorinit() {
     Serial.println("RIGHT COLOR SENSOR FAILED");
     while (true);
   }
-
+/*
   leftmuxselect(CUPCOLOR);
   if (cupcolor.begin() == 0 ) {
     Serial.println("CUP COLOR FAILED");
@@ -159,6 +159,7 @@ void colorinit() {
   }
 
   cupcolor.enableColor(true);
+  */
   leftcolor.enableColor(true);
   rightcolor.enableColor(true);
 }

@@ -86,11 +86,15 @@ void setup() {
 
 void loop() {
   if (obby() == true) {
-    stop(100);
-    while(Serial1.available()){
-      Serial1.read();  
-    }
     Serial1.write('o');
+    move(-45,-45);
+    delay(100);
+    stop(100);
+    
+    while (Serial1.available()) {
+      Serial1.read();
+    }
+    
     dist.update_dist();
     delay(500);
     int leftdist = (dist.left_front + dist.left_back) / 2;
@@ -113,11 +117,16 @@ void loop() {
 
     }
   }
+
   //data.updateOrientation();
 
   //Serial.printf("BNO data x:%d y:%d z:%d\n", data.x, data.y, data.z);
 
+  if (data.z < - 15) {
+    Serial1.write("d");
+  }
 
+ 
 
   //dist.update_dist();
 

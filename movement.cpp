@@ -48,9 +48,9 @@ void turnright(float degrees) {
     if (turn < -180) turn += 360;
     if (turn > 180) turn -= 360;
 
-    if (abs(turn) < 4) break;
+    if (abs(turn) < 8) break;
 
-    move(30, -30);
+    move(50, -50);
   }
   stop(100);
 }
@@ -79,9 +79,9 @@ void turnleft(float degrees) {
     if (turn < -180) turn += 360;
     if (turn > 180) turn -= 360;
 
-    if (abs(turn) < 4) break;
+    if (abs(turn) < 8) break;
 
-    move(-30, 30);
+    move(-50, 50);
   }
   stop(100);
 }

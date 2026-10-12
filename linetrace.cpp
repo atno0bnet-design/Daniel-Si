@@ -213,6 +213,213 @@ vector<Point> getExits(Mat frame) {
   return exits;
 }
 
+
+
+vector<Point> getFrontExits(Mat frame) {
+
+  vector<Point> topexits, leftexits, rightexits, bottomexits, exits;
+  vector<vector<Point>> contours;
+  vector<vector<Point>> topgroups, leftgroups, rightgroups, bottomgroups;
+  vector<Point> black_line;
+
+  findContours(frame, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+  if (contours.size() > 0) {
+
+    black_line =
+        *max_element(contours.begin(), contours.end(), contour_compare);
+
+    if (contourArea(black_line) > 4000) {
+      vector<Point> top, bottom, left, right;
+
+      for (Point p : black_line) {
+        if (p.x == 0) {
+          left.push_back(p);
+        }
+        if (p.x == frame.cols - 1) {
+          right.push_back(p);
+        }
+        if (p.y == 0) {
+          top.push_back(p);
+        }
+        if (p.y == frame.rows - 1) {
+          bottom.push_back(p);
+        }
+      }
+
+      sort(left.begin(), left.end(),
+           [](Point a, Point b) { return a.y > b.y; });
+      sort(right.begin(), right.end(),
+           [](Point a, Point b) { return a.y < b.y; });
+      sort(top.begin(), top.end(), [](Point a, Point b) { return a.x < b.x; });
+      sort(bottom.begin(), bottom.end(),
+           [](Point a, Point b) { return a.x > b.x; });
+
+      // top
+
+      for (Point p : top) {
+
+        if (topgroups.empty()) {
+          topgroups.push_back({p});
+          continue;
+        }
+
+        vector<Point> &lastGroup = topgroups.back();
+
+        Point lastPoint = lastGroup.back();
+
+        if (abs(p.x - lastPoint.x) <= 10) {
+          lastGroup.push_back(p);
+        } else {
+          topgroups.push_back({p});
+        }
+      }
+
+      // left
+
+      for (Point p : left) {
+
+        if (leftgroups.empty()) {
+          leftgroups.push_back({p});
+
+          continue;
+        }
+
+        vector<Point> &lastGroup = leftgroups.back();
+
+        Point lastPoint = lastGroup.back();
+
+        if (abs(p.y - lastPoint.y) <= 10) {
+          lastGroup.push_back(p);
+        } else {
+          leftgroups.push_back({p});
+        }
+      }
+
+      // right
+
+      for (Point p : right) {
+
+        if (rightgroups.empty()) {
+          rightgroups.push_back({p});
+
+          continue;
+        }
+
+        vector<Point> &lastGroup = rightgroups.back();
+
+        Point lastPoint = lastGroup.back();
+
+        if (abs(p.y - lastPoint.y) <= 10) {
+          lastGroup.push_back(p);
+        } else {
+          rightgroups.push_back({p});
+        }
+      }
+
+      // bottom
+
+      for (Point p : bottom) {
+
+        if (bottomgroups.empty()) {
+          bottomgroups.push_back({p});
+
+          continue;
+        }
+
+        vector<Point> &lastGroup = bottomgroups.back();
+
+        Point lastPoint = lastGroup.back();
+
+        if (abs(p.x - lastPoint.x) <= 10) {
+          lastGroup.push_back(p);
+        } else {
+          bottomgroups.push_back({p});
+        }
+      }
+
+
+      // merging groups
+
+      vector<vector<Point>> allgroups;
+
+      for (vector<Point> grup : topgroups) {
+        allgroups.push_back(grup);
+      }
+
+      for (vector<Point> grup : rightgroups) {
+        allgroups.push_back(grup);
+      }
+      for (vector<Point> grup : bottomgroups) {
+        allgroups.push_back(grup);
+      }
+      for (vector<Point> grup : leftgroups) {
+        allgroups.push_back(grup);
+      }
+
+      // delete all tiny exits or big exits
+
+
+      /*
+            for (int i = 0; i < (int)allgroups.size(); i++) {
+              if (allgroups.at(i).size() <= 50 || allgroups.at(i).size() >= 150)
+         { allgroups.erase(allgroups.begin() + i); i--;
+              }
+            }
+             */
+
+      while (1) {
+
+        bool merged = false;
+       
+        for (int i = 1; i < (int)allgroups.size(); i++) {
+
+          int dist = norm(allgroups[i].front() - allgroups[i - 1].back());
+
+          if (dist < 10) {
+            allgroups[i - 1].insert(allgroups[i - 1].end(),
+                                    allgroups[i].begin(), allgroups[i].end());
+            allgroups.erase(allgroups.begin() + i);
+            merged = true;
+            break;
+            // merge
+          }
+        }
+
+        if (allgroups.size() > 0) {
+          cout << allgroups.back().back() << allgroups.front().front() << endl;
+          int dist = norm(allgroups.back().back() - allgroups.front().front());
+          if (dist < 10) {
+
+            allgroups.back().insert(allgroups.back().end(),
+                                    allgroups.front().begin(),
+                                    allgroups.front().end());
+            allgroups.erase(allgroups.begin());
+            merged = true;
+          }
+
+          if (merged == false) {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+
+      for (vector<Point> grups : allgroups) {
+        Point midpoint((grups.back().x + grups.front().x) / 2,
+                       (grups.back().y + grups.front().y) / 2);
+        exits.push_back(midpoint);
+      }
+    } else {
+      exits.push_back(Point(frame.cols / 2, 0));
+    }
+  }
+
+  return exits;
+}
+
+
 Point getIntersection(Mat framewhite, Mat &display) {
 
   // return Point(framewhite.cols / 2, framewhite.rows / 2);
@@ -318,11 +525,17 @@ Point chooseExit(vector<Point> exits, Mat framewhite, Mat &display,
     double entrancedist1 = norm(exits.at(0) - previousentrance);
     double entrancedist2 = norm(exits.at(1) - previousentrance);
     if (entrancedist1 < entrancedist2) {
+		
       entrance = exits.at(0);
       exit = exits.at(1);
+      previousentrance = entrance;
+		previousexit = exit;
     } else {
+		
       entrance = exits.at(1);
       exit = exits.at(0);
+      previousentrance = entrance;
+		previousexit = exit;
     }
     return exit;
   }
@@ -338,6 +551,100 @@ double getAngle(Point exit, Point mid_point) {
 
     return atan2(dx, -dy) * 180.0 / M_PI;
 }
+
+
+
+void frontTrace(Mat frame, Mat& display, int& LS, int& RS){
+	cvtColor(frame,frame,COLOR_BGR2GRAY);
+	threshold(frame, frame, 130, 255, THRESH_BINARY_INV);
+
+	 //Mat kernel = getStructuringElement(MORPH_RECT, Size(20, 20));
+    //morphologyEx(frame, frame, MORPH_CLOSE, kernel);
+	vector<vector<Point>> contours;
+	findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
+if(contours.size()>0){
+
+	imshow("frame",frame);
+	Point target(frame.cols/2,0);
+	int min_dist = INT_MAX;
+	vector<Point> cont;
+	for(vector<Point> c:contours){
+		if(contourArea(c)<500){
+			continue;
+		}
+		Moments m = moments(c);
+		
+		double cx = m.m01 / m.m00;
+		double cy =  m.m10 / m.m00;
+		
+		Point test(cx,cy);
+		int dist = norm(target-test);
+		if(dist<min_dist){
+			min_dist = dist;
+
+			cont = c;
+			
+		}
+		
+	}
+	if(min_dist!=INT_MAX){
+	/*drawContours(display,vector<vector<Point>>(1,cont),0,Scalar(0,0,255), 3);
+	Moments m = moments(cont);
+		
+		double cx = m.m10 / m.m00;
+        double cy = m.m01 / m.m00;
+		Point frontexit(cx,cy);
+	*/
+	Point p;
+	int min_entrance_dist= INT_MAX;
+	for(Point c:cont){
+		int dist = norm(c-Point(frame.cols/2,frame.rows));
+		if(dist<min_entrance_dist){
+			min_entrance_dist = dist;
+			p = c;
+		}
+	}
+	Point frontexit = p;
+	
+	circle(display,frontexit,10,Scalar(255,255,255),-1);
+	
+	
+	
+	double kp = 0.7;
+	
+	const int default_speed = 25;
+	
+	int error = (frame.cols/2)-frontexit.x;
+	
+	int adjust = error * kp;
+	
+	
+	
+	LS = default_speed - adjust;
+      RS = default_speed + adjust;
+
+
+
+      LS = clamp(LS, -100, 100);
+      RS = clamp(RS, -100, 100);
+	
+	
+	
+}
+else{
+RS = 35;
+	LS = 35;	
+}
+}
+else{
+		RS = 35;
+	LS = 35;
+}
+
+	
+
+}
+
 
 
 

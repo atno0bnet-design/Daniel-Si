@@ -12,14 +12,14 @@ int main() {
   frontcam.options->camera = 0;
   frontcam.options->video_width = 1640;
   frontcam.options->video_height = 1232;
-  frontcam.options->framerate = 30;
+  frontcam.options->framerate = 60;
 
   lccv::PiCamera cam;
 
   cam.options->camera = 1;
   cam.options->video_width = 1640;
   cam.options->video_height = 1232;
-  cam.options->framerate = 30;
+  cam.options->framerate = 60;
   cam.options->verbose = false;
 
   cam.startVideo();
@@ -60,7 +60,7 @@ int main() {
   waitForcytron();
 
   while (true) {
-
+	auto start = std::chrono::steady_clock::now();
     if (!cam.getVideoFrame(frame, 1000)) {
       cout << "CAM ERROR" << endl;
       break;
@@ -69,7 +69,7 @@ int main() {
       cout << "Frame empty" << endl;
       break;
     }
-    
+    /*
     if (!frontcam.getVideoFrame(frontframe, 1000)) {
       cout << "CAM ERROR" << endl;
       break;
@@ -78,15 +78,10 @@ int main() {
       cout << "frontFrame empty" << endl;
       break;
     }
-	
+	*/
     resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
-    resize(frontframe, frontframe, Size(frontframe.cols / 4, frontframe.rows / 4));
-    flip(frontframe,frontframe,0);
-    
-    Point topleft(110,(frontframe.rows/2)+20);
-	Point bottomright(frontframe.cols-110,frontframe.rows);
-	Rect roi(topleft,bottomright);
-	frontframe = frontframe(roi);
+
+
 
     /*
     Mat mask = cv::Mat::zeros(frame.size(), CV_8UC1);
@@ -108,19 +103,19 @@ int main() {
     Mat green = frame.clone();
     Mat framewhite = frame.clone();
 	Mat frontdisplay = frontframe.clone();
-    setupImg(frame, framewhite, green,frontframe);
+    setupImg(frame, framewhite, green);
     
-imshow("front", frontframe);
-imshow("frontdiplay", frontdisplay);
-    waitKey(1);
-    continue;
+
+
     vector<vector<Point>> contours, green_cont;
     findContours(green, green_cont, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
     findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
+    vector<Point> c;
+    if(contours.size()>0){
+		c = *max_element(contours.begin(), contours.end(), contour_compare);
+    }
     if(wait_for_disappear==true){
-		findContours(frame,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
 		if(contours.size()>0){
-		vector<Point> c = *max_element(contours.begin(), contours.end(), contour_compare);
 		if(contourArea(c)>1000){
 			continue;
 		}
@@ -154,16 +149,26 @@ imshow("frontdiplay", frontdisplay);
 			state = line_following;
 		}
 	}
-	
+	if(state == front_trace){
+		if(contours.size()>0){
+			c = *max_element(contours.begin(), contours.end(), contour_compare);
+		if(contourArea(c)>17000){
+			state = line_following;
+		}
+		}
+	}
 	auto s = check_message();
 	if(s){
 		cout<<"obstacle"<<endl;
 		if(s.value()==obstacle){
 			cout<<"OOooObbyyy"<<endl;
+			state = obstacle;
 		}
-		state = obstacle;
+		if(s.value()==down_ramp){
+			state = down_ramp;
+		}
+		
 	}
-	
     switch (state) {
     case line_following: {
       currentExit = chooseExit(exits, framewhite, display, previousentrance,
@@ -172,12 +177,12 @@ imshow("frontdiplay", frontdisplay);
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       int LS, RS;
       speed_calc(LS, RS, currentExit);
-      cout << "RS:" << RS << "  LS" << LS << endl;
+      //cout << "RS:" << RS << "  LS" << LS << endl;
       sendSpeed(4, LS, RS);
       break;
     }
     case left_green: {
-      cout << "left green" << endl;
+     // cout << "left green" << endl;
       currentExit = chooseLeft(exits, framewhite, display, previousentrance,
                                previousexit);
       putText(display, "Left", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
@@ -185,12 +190,12 @@ imshow("frontdiplay", frontdisplay);
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       int LS, RS;
       speed_calc(LS, RS, currentExit);
-      cout << "RS:" << RS << "  LS" << LS << endl;
+     // cout << "RS:" << RS << "  LS" << LS << endl;
       sendSpeed(4, LS, RS);
       break;
     }
     case right_green: {
-      cout << "right green" << endl;
+     // cout << "right green" << endl;
       currentExit = chooseRight(exits, framewhite, display, previousentrance,
                                 previousexit);
       putText(display, "Right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
@@ -198,13 +203,13 @@ imshow("frontdiplay", frontdisplay);
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       int LS, RS;
       speed_calc(LS, RS, currentExit);
-      cout << "RS:" << RS << "  LS" << LS << endl;
+     // cout << "RS:" << RS << "  LS" << LS << endl;
       sendSpeed(4, LS, RS);
 
       break;
     }
     case double_green: {
-      cout << "double green" << endl;
+      //cout << "double green" << endl;
       putText(display, "Double", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
               Scalar(0, 0, 255), 2, LINE_AA);
 
@@ -219,14 +224,14 @@ imshow("frontdiplay", frontdisplay);
       break;
     }
     case gap: {
-      cout << "gap" << endl;
+     // cout << "gap" << endl;
       currentExit = getGapexit(frame, exits.at(0));
       circle(display, currentExit, 5, Scalar(0, 0, 255), 7, LINE_8, 0);
       double gap_dist = norm(currentExit-exits.at(0));
-      if (gap_dist > 140) {
+      if (gap_dist > 250) {
         int LS, RS;
         speed_calc(LS, RS, currentExit);
-        cout << "RS:" << RS << "  LS" << LS << endl;
+        //cout << "RS:" << RS << "  LS" << LS << endl;
         sendSpeed(4, LS, RS);
         break;
       }
@@ -251,11 +256,34 @@ imshow("frontdiplay", frontdisplay);
 		  sendSpeed(1,ang,-90);
 		}
       waitForcytron();
-      state = move_forward;
+      state = front_trace;
       break;
     }
     case move_forward:{
 		sendSpeed(4,45,45);
+		break;
+	}
+	case front_trace:{
+		 if (!frontcam.getVideoFrame(frontframe, 1000)) {
+			cout << "CAM ERROR" << endl;
+			break;
+		}
+		if (frontframe.empty()) {
+			cout << "frontFrame empty" << endl;
+			break;
+		}
+		resize(frontframe, frontframe, Size(frontframe.cols / 4, frontframe.rows / 4));
+		flip(frontframe,frontframe,-1);
+		Point topleft(0,(frontframe.rows/2)+20);
+		Point bottomright(frontframe.cols-0,frontframe.rows);
+		Rect roi(topleft,bottomright);
+		Mat frontdisplay = frontframe(roi);
+		frontframe = frontframe(roi);
+		int LS = 0, RS = 0 ;
+		frontTrace(frontframe, frontdisplay, LS, RS);
+		sendSpeed(4,LS,RS);
+		cout<<"RS: "<<RS<<"  LS: "<<LS<<endl;
+		imshow("frontframe", frontdisplay);
 		break;
 	}
 	case obstacle:{
@@ -279,7 +307,7 @@ imshow("frontdiplay", frontdisplay);
 		break;
 	}
 	case left_obstacle:{
-		cout<<"left obby"<<endl;
+		//cout<<"left obby"<<endl;
 		putText(display, "Searching right", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
               Scalar(0, 0, 255), 2, LINE_AA);
              if(check_right(frame,display) == true){
@@ -290,17 +318,32 @@ imshow("frontdiplay", frontdisplay);
 			Point p;
 			for(Point e : exits){
 				if(norm(e-Point(0,frame.rows/2))<dist){
+					dist = norm(e-Point(0,0));
 					p = e;
 				}
 			}
 			previousexit = p;
+			dist = INT_MAX;
+			for(Point e : exits){
+				if(e==previousexit){
+					continue;
+				}
+				if(norm(e-Point(frame.cols,frame.rows/2))<dist){
+					dist = norm(e-Point(frame.cols,frame.rows));
+					p = e;
+				}
+			}
+			if(p!=previousexit){
+				previousentrance = p;
+			}
+			
 			
 			state = line_following;
 		}
 		break;
 	}
 	case right_obstacle:{
-		cout<<"right obby"<<endl;
+		//cout<<"right obby"<<endl;
 		putText(display, "Searching left", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1.2,
               Scalar(0, 0, 255), 2, LINE_AA);
 		if(check_left(frame,display) == true){
@@ -311,28 +354,57 @@ imshow("frontdiplay", frontdisplay);
 			Point p;
 			for(Point e : exits){
 				if(norm(e-Point(frame.cols,frame.rows/2))<dist){
+					dist = norm(e-Point(frame.cols,frame.rows/2));
 					p = e;
 				}
 			}
 			previousexit = p;
-			
+			dist = INT_MAX;
+			for(Point e : exits){
+				if(e==previousexit){
+					continue;
+				}
+				if(norm(e-Point(0,frame.rows/2))<dist){
+					dist = norm(e-Point(0,frame.rows));
+					p = e;
+				}
+			}
+			if(p!=previousexit){
+				previousentrance = p;
+			}
 			state = line_following;
 		}
 		
 		break;
 	}
+	case up_ramp:{
+		cout<<"up_ramp"<<endl;
+		sendSpeed(4,0,0);
+		while(1);
+		break;
+	}
+	case down_ramp:{
+		cout<<"down ramp"<<endl;
+		sendSpeed(4,0,0);
+		while(1);
+		break;
+	}
     default: {
     }
     }
-     circle(display, previousexit, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
-      circle(display, previousentrance, 5, Scalar(255, 0, 255), 7, LINE_8, 0);
+     circle(display, previousexit, 5, Scalar(127, 127, 255), 7, LINE_8, 0);
+      circle(display, previousentrance, 5, Scalar(255,127, 127), 7, LINE_8, 0);
+     
+      
     imshow("display", display);
+    //imshow("front", frontframe);
+	//imshow("frontdiplay", frontdisplay);
     //imshow("frame", frame);
     //imshow("green", green);
     //imshow("framewhite", framewhite);
     
     writer.write(display);
-    thresh.write(frame);
+    //thresh.write(frame);
     int key = waitKey(1);
     if(key == ' '){
 		while(key==' '){
@@ -343,6 +415,10 @@ imshow("frontdiplay", frontdisplay);
 	}
     if (key == 'q')
       break;
+       auto end = std::chrono::steady_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+      cout<<"ms"<<duration.count()<<endl;
+     
   }
 
   sendSpeed(0, 0, 0);

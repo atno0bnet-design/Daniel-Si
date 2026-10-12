@@ -3,7 +3,7 @@
 
 bool check_left(Mat frame,Mat& display){
 	Point topleft(0,frame.rows-70-100);
-	Point bottomright((frame.cols/2)-1,frame.rows-1-100);
+	Point bottomright((frame.cols/4)-1,frame.rows-1-100);
 	Rect search_area(topleft,bottomright);
 	
 	rectangle(display, search_area, Scalar(255, 255, 255), 1);
@@ -12,7 +12,7 @@ bool check_left(Mat frame,Mat& display){
 	findContours(slice,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
 	if(contours.size()>0){
 		vector<Point> c = *max_element(contours.begin(), contours.end(), contour_compare);
-		if(contourArea(c)>10000){
+		if(contourArea(c)>1000){
 			return true;
 		}
 	}
@@ -22,7 +22,7 @@ bool check_left(Mat frame,Mat& display){
 
 
 bool check_right(Mat frame, Mat& display){
-	Point topleft(frame.cols/2,frame.rows-70-100);
+	Point topleft(frame.cols*(3.0/4),frame.rows-70-100);
 	Point bottomright(frame.cols-1,frame.rows-1-100);
 	Rect search_area(topleft,bottomright);
 	
@@ -33,7 +33,7 @@ bool check_right(Mat frame, Mat& display){
 	findContours(slice,contours,RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
 	if(contours.size()>0){
 		vector<Point> c = *max_element(contours.begin(), contours.end(), contour_compare);
-		if(contourArea(c)>10000){
+		if(contourArea(c)>1000){
 			return true;
 		}
 	}
