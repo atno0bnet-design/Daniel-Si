@@ -62,8 +62,10 @@ class dists {
     }
 
 
-
 };
+enum Ramp{flat,up,down,left,right};
+
+inline Ramp ramp_condition = flat;
 
 
 inline dists dist;
@@ -160,3 +162,7 @@ void colorinit();
 void leftObstacle();
 
 void rightObstacle();
+
+bool checkSilver();
+
+Ramp getRamp();

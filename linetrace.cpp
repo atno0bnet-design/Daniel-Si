@@ -181,7 +181,7 @@ vector<Point> getExits(Mat frame) {
         }
 
         if (allgroups.size() > 0) {
-          cout << allgroups.back().back() << allgroups.front().front() << endl;
+          //cout << allgroups.back().back() << allgroups.front().front() << endl;
           int dist = norm(allgroups.back().back() - allgroups.front().front());
           if (dist < 10) {
 
@@ -387,7 +387,7 @@ vector<Point> getFrontExits(Mat frame) {
         }
 
         if (allgroups.size() > 0) {
-          cout << allgroups.back().back() << allgroups.front().front() << endl;
+          //cout << allgroups.back().back() << allgroups.front().front() << endl;
           int dist = norm(allgroups.back().back() - allgroups.front().front());
           if (dist < 10) {
 
@@ -588,7 +588,7 @@ if(contours.size()>0){
 		
 	}
 	if(min_dist!=INT_MAX){
-	/*drawContours(display,vector<vector<Point>>(1,cont),0,Scalar(0,0,255), 3);
+	/*
 	Moments m = moments(cont);
 		
 		double cx = m.m10 / m.m00;
@@ -597,6 +597,7 @@ if(contours.size()>0){
 	*/
 	Point p;
 	int min_entrance_dist= INT_MAX;
+	drawContours(display,vector<vector<Point>>(1,cont),0,Scalar(0,0,255), 3);
 	for(Point c:cont){
 		int dist = norm(c-Point(frame.cols/2,frame.rows));
 		if(dist<min_entrance_dist){
@@ -610,7 +611,7 @@ if(contours.size()>0){
 	
 	
 	
-	double kp = 0.7;
+	double kp = 0.4;
 	
 	const int default_speed = 25;
 	

@@ -160,6 +160,64 @@ void colorinit() {
 
   cupcolor.enableColor(true);
   */
+  
   leftcolor.enableColor(true);
   rightcolor.enableColor(true);
+  leftcolor.setADCGain(APDS9960_AGAIN_16X);
+  rightcolor.setADCGain(APDS9960_AGAIN_16X);
+}
+
+
+
+
+
+
+bool checkSilver(){
+  uint16_t lr,lg,lb,lc;
+    leftcolor.getColorData(&lr,&lg,&lb,&lc);
+    uint16_t rr,rg,rb,rc;
+    rightcolor.getColorData(&rr,&rg,&rb,&rc);
+    //Serial.printf("Left c: %d r: %d g: %d b: %d  Right c: %d r: %d g:%d b: %d\n",lc,lr,lg,lb, rc,rr,rg,rb);
+    double left_redratio = (double)lr/lc;
+    //Serial.printf("left redratio:%f\n",left_redratio);
+    double left_blueratio = (double)lb/lc;
+    //Serial.printf("left blueratio:%f\n",left_blueratio);
+
+    double right_redratio = (double)rr/rc;
+    //Serial.printf("right redratio:%f\n",right_redratio);
+    double right_blueratio = (double)rb/rc;
+    //Serial.printf("right blueratio:%f\n",right_blueratio);
+
+
+    if((lc>210&&left_redratio>0.36&&left_blueratio>0.4)||(rc>210&&right_redratio>0.36&&right_blueratio>0.4)){
+       return true; 
+    }  
+
+
+  
+  return false;  
+}
+
+
+
+
+
+
+
+Ramp getRamp(){
+  data.updateOrientation();
+  
+  if(data.y<-14){
+    return left;  
+  }
+  if(data.y>14){
+    return right; 
+  }
+  if(data.z<-20){
+    return down;  
+  }  
+  if(data.z>5){
+    return up;
+  }
+  return flat;
 }

@@ -169,6 +169,7 @@ int main() {
 		}
 		
 	}
+	cout << "State before switch: " << stateName(state) << endl;
     switch (state) {
     case line_following: {
       currentExit = chooseExit(exits, framewhite, display, previousentrance,
@@ -182,6 +183,18 @@ int main() {
       break;
     }
     case left_green: {
+		if(ramp_condition == rightr){
+			cout<<"left ramp"<<endl;
+			sendSpeed(2,2,0);
+			waitForcytron();
+			break;
+		}
+		if(ramp_condition == leftr){
+			cout<<"left ramp"<<endl;
+			sendSpeed(5,2,0);
+			waitForcytron();
+			break;
+		}
      // cout << "left green" << endl;
       currentExit = chooseLeft(exits, framewhite, display, previousentrance,
                                previousexit);
@@ -195,6 +208,25 @@ int main() {
       break;
     }
     case right_green: {
+		if(ramp_condition == rightr){
+			cout<<"right ramp"<<endl;
+			sendSpeed(2,1,0);
+			waitForcytron();
+			break;
+		}
+		
+		if(ramp_condition == leftr){
+			cout<<"left ramp"<<endl;
+			sendSpeed(5,1,0);
+			waitForcytron();
+			break;
+		}
+		if(ramp_condition == downr){
+			cout<<"right down ramp"<<endl;
+			sendSpeed(6,1,0);
+			waitForcytron();
+			break;
+		}
      // cout << "right green" << endl;
       currentExit = chooseRight(exits, framewhite, display, previousentrance,
                                 previousexit);
@@ -399,7 +431,7 @@ int main() {
     imshow("display", display);
     //imshow("front", frontframe);
 	//imshow("frontdiplay", frontdisplay);
-    //imshow("frame", frame);
+    imshow("frame", frame);
     //imshow("green", green);
     //imshow("framewhite", framewhite);
     
@@ -409,7 +441,7 @@ int main() {
     if(key == ' '){
 		while(key==' '){
 			sendSpeed(4,0,0);
-			this_thread::sleep_for(1000ms);
+
 			key = waitKey(1);
 		}
 	}
@@ -417,7 +449,7 @@ int main() {
       break;
        auto end = std::chrono::steady_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
-      cout<<"ms"<<duration.count()<<endl;
+     // cout<<"ms"<<duration.count()<<endl;
      
   }
 

@@ -52,7 +52,24 @@ void turnright(float degrees) {
 
     move(50, -50);
   }
-  stop(100);
+  stop(1);
+
+  Wire.end(); 
+    Wire1.end();
+    delay(50); 
+    Wire.setSCL(29);
+    Wire.setSDA(28);
+    Wire.begin();
+    
+    Wire1.setSCL(27);
+    Wire1.setSDA(26);
+    Wire1.begin();
+    delay(50);
+
+
+    colorinit(); 
+    tofinit();
+    delay(50); 
 }
 
 
@@ -83,7 +100,23 @@ void turnleft(float degrees) {
 
     move(-50, 50);
   }
-  stop(100);
+  stop(1);
+  Wire.end(); 
+    Wire1.end();
+    delay(50); 
+    Wire.setSCL(29);
+    Wire.setSDA(28);
+    Wire.begin();
+    
+    Wire1.setSCL(27);
+    Wire1.setSDA(26);
+    Wire1.begin();
+    delay(50);
+
+
+    colorinit(); 
+    tofinit();
+    delay(50); 
 }
 
 

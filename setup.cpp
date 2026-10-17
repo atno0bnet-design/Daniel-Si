@@ -33,7 +33,7 @@ void sendSpeed(int condition, int LS, int RS){
 	sprintf(buff, "[%d,%d,%d]", condition, LS, RS);
 	
 	
-	cout<<buff<<endl;
+	//cout<<buff<<endl;
 	int count = write(uart0_filestream,&buff[0],strlen(buff));
 	
 	if(count < 0){
@@ -75,15 +75,38 @@ bool contour_compare(const vector<Point> &a,const vector<Point> &b){
 
 
 void speed_calc(int& LS, int& RS, Point exit){
+
 	double ka = 3;
+	int default_speed = 45;
+	if(ramp_condition == upr||ramp_condition == leftr||ramp_condition==rightr){
+		cout<<"ramp"<<endl;
+		ka = 0.8;
+		default_speed = 45;
+	}
+	if(ramp_condition==downr){
+		default_speed = 20;
+		ka = 0.8;
+	}
+	if(ramp_condition == upr){
+		default_speed = 50;
+	}
 	
-	const int default_speed = 45;
+	
 	 int ang = getAngle(exit, Point((1640 / 4)/2, (1232 / 4)/2));
 
       int adjust = ang * ka;
 
       LS = default_speed + adjust;
       RS = default_speed - adjust;
+     
+	if(ramp_condition == leftr){
+		LS+=5;
+	}
+	if(ramp_condition == rightr){
+
+
+		RS+=5;
+	}
 
       // Slow BOTH motors based on angle
       double speedScale = 1.0 - abs(ang) / 90.0;
@@ -100,7 +123,9 @@ void speed_calc(int& LS, int& RS, Point exit){
 optional<State> check_message(){
 	char rx_buff[255];
 	int rx_length = read(uart0_filestream,(void*)rx_buff,255);
+	ramp_condition = flat;
 	if(rx_length!=0){
+		cout<<"message detected"<<endl;
 		switch(rx_buff[0]){
 			case 'o':{
 				return obstacle;
@@ -115,11 +140,20 @@ optional<State> check_message(){
 				break;
 			}
 			case 'u':{
-				return up_ramp;
+				ramp_condition = upr;
+
 				break;
 			}
+			case 'q':{
+				ramp_condition = rightr;
+				break;
+			}
+			case 'w':{
+					ramp_condition = leftr;
+					break;
+			}
 			case 'd':{
-				return down_ramp;
+				ramp_condition = downr;
 				break;
 			}
 			default:{
@@ -132,11 +166,25 @@ optional<State> check_message(){
 	}
 	
 	
-	
+	return nullopt;
 }
 
 
 
-
-
-
+string stateName(State s) {
+    switch (s) {
+        case line_following: return "line_following";
+        case double_green:   return "double_green";
+        case left_green:     return "left_green";
+        case right_green:    return "right_green";
+        case gap:             return "gap";
+        case alignment:       return "alignment";
+        case front_trace:     return "front_trace";
+        case obstacle:        return "obstacle";
+        case left_obstacle:   return "left_obstacle";
+        case right_obstacle:  return "right_obstacle";
+        case move_forward:    return "move_forward";
+        case down_ramp:       return "down_ramp";
+        default:              return "unknown";
+    }
+}

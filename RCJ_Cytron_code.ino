@@ -5,7 +5,6 @@ Adafruit_NeoPixel ring(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 
 
-
 int og = 0;
 
 int condition = 0;
@@ -64,7 +63,9 @@ void setup() {
   tofinit();
   //servoSetup();
   while (1) {
-    Serial.println(getDist());
+    data.updateOrientation();
+    Serial.printf("x: %d y:%d z: %d\n", data.x, data.y, data.z);
+    //Serial.println(getDist());
     if (!digitalRead(21)) {
       cupUp();
       break;
@@ -85,16 +86,44 @@ void setup() {
 }
 
 void loop() {
+  data.updateOrientation();
+    Serial.printf("x: %d y:%d z: %d\n", data.x, data.y, data.z);
+  ramp_condition = getRamp();
+  switch(ramp_condition){
+    case up:{
+      Serial1.print('u');
+      break;
+    }
+    case right:{
+      Serial1.print('q');
+      break; 
+    }  
+    case left:{
+      Serial.println(";llleft");
+      Serial1.print('w');  
+      break;
+    }
+    case down:{
+      Serial1.write('d');
+      break;  
+    }
+  }
+  
+  if (checkSilver() == true) {
+    Serial1.write('e');
+    stop(1);
+    while (1);
+  }
   if (obby() == true) {
     Serial1.write('o');
-    move(-45,-45);
+    move(-45, -45);
     delay(100);
     stop(100);
-    
+
     while (Serial1.available()) {
       Serial1.read();
     }
-    
+
     dist.update_dist();
     delay(500);
     int leftdist = (dist.left_front + dist.left_back) / 2;
@@ -117,22 +146,6 @@ void loop() {
 
     }
   }
-
-  //data.updateOrientation();
-
-  //Serial.printf("BNO data x:%d y:%d z:%d\n", data.x, data.y, data.z);
-
-  if (data.z < - 15) {
-    Serial1.write("d");
-  }
-
- 
-
-  //dist.update_dist();
-
-
-  //Serial.printf("left back: %d left front %d right back %d right front %d\n", dist.left_back, dist.left_front, dist.right_back, dist.right_front);
-
 
 
 
@@ -168,13 +181,32 @@ void loop() {
             Serial.println("Done turning");
             stop(100);
             move(45, 45);
-            delay(500);
+            delay(400);
+
+
+            stop(5);
             Serial1.write('z');
             break;
 
           }
         case 2: {
             //right
+            if(L_motor == 2){
+              move(45,45);
+              delay(600);
+              turnleft(80);
+                move(45,45);
+                delay(800);
+            }
+            if(L_motor == 1){
+              Serial.println("right green on ramp");
+              move(45,45);
+              delay(100);
+              turnright(95);
+                move(-45,-45);
+                delay(200);
+            }
+            Serial1.write('z');
             break;
           }
         case 3: {
@@ -183,16 +215,45 @@ void loop() {
             break;
           }
         case 4: {
+           
             Serial.printf("RS: %d\nLS: %d\n", R_motor, L_motor);
+          
 
-            move(L_motor, R_motor);
+                move(L_motor, R_motor);
+
+                  
+
             break;
           }
         case 5: {
-
-            tone(22, 800, 440);
-            move(0, 0);
+            if(L_motor == 2){
+              
+              move(45,45);
+              delay(100);
+              turnleft(95);
+                move(-45,-45);
+                delay(200);
+            }
+            if(L_motor == 1){
+              Serial.println("right green on ramp");
+              move(45,45);
+              delay(700);
+              turnright(70);
+                move(45,45);
+                delay(800);
+            }
+            
             break;
+          }
+          case 6:{
+            if(L_motor == 1){
+              Serial.println("right green on down ramp");
+              move(-45,-45);
+              delay(400);
+              turnright(80);
+                move(45,45);
+                delay(100);
+            }
           }
         default: {
             tone(22, 100, 220);
